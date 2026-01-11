@@ -1,3 +1,4 @@
+"""
 #!/usr/bin/env python3
 # MIT License
 """CLI entrypoint for 0verflow: starts a simple orchestrator and the FastAPI API."""

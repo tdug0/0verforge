@@ -1,8 +1,9 @@
+"""
 # MIT License
 from fastapi import FastAPI, WebSocket
 from fastapi.responses import JSONResponse
 
-from ..core.orchestrator import CoreOrchestrator
+from src.zeroverforge.core.orchestrator import CoreOrchestrator
 
 app = FastAPI()
 _orch = CoreOrchestrator()
@@ -27,5 +28,7 @@ async def websocket_endpoint(ws: WebSocket):
     except Exception:
         await ws.close()
 
+
 def create_app() -> FastAPI:
     return app
+"""
