@@ -8,22 +8,41 @@ interface Message {
   id: string;
   role: "user" | "system";
   content: string;
-  timestamp: Date;
+  timestamp: number;
 }
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_OVERFORGE_API_URL ?? "http://localhost:8000";
 
+let msgCounter = 0;
+function nextId() {
+  return `msg-${++msgCounter}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function formatTime(ts: number) {
+  const d = new Date(ts);
+  const h = d.getHours().toString().padStart(2, "0");
+  const m = d.getMinutes().toString().padStart(2, "0");
+  const s = d.getSeconds().toString().padStart(2, "0");
+  return `${h}:${m}:${s}`;
+}
+
+const WELCOME_MESSAGE: Message = {
+  id: "welcome",
+  role: "system",
+  content:
+    "0verforge online. Awaiting instructions. You can issue natural language commands to inspect, configure, or control the RSI system.",
+  timestamp: 0,
+};
+
 export function ChatPanel() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "welcome",
-      role: "system",
-      content:
-        "0verforge online. Awaiting instructions. You can issue natural language commands to inspect, configure, or control the RSI system.",
-      timestamp: new Date(),
-    },
-  ]);
+  const [mounted, setMounted] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([WELCOME_MESSAGE]);
+
+  useEffect(() => {
+    setMounted(true);
+    setMessages([{ ...WELCOME_MESSAGE, timestamp: Date.now() }]);
+  }, []);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -44,10 +63,10 @@ export function ChatPanel() {
     if (!trimmed || isLoading) return;
 
     const userMsg: Message = {
-      id: crypto.randomUUID(),
+      id: nextId(),
       role: "user",
       content: trimmed,
-      timestamp: new Date(),
+      timestamp: Date.now(),
     };
 
     setMessages((prev) => [...prev, userMsg]);
@@ -66,7 +85,7 @@ export function ChatPanel() {
       const data = await res.json();
 
       const sysMsg: Message = {
-        id: crypto.randomUUID(),
+        id: nextId(),
         role: "system",
         content:
           data.response ??
@@ -74,17 +93,17 @@ export function ChatPanel() {
           (data.accepted
             ? `Command accepted (id: ${data.payload_id ?? userMsg.id}). Processing...`
             : "Command was not accepted. Check system logs."),
-        timestamp: new Date(),
+        timestamp: Date.now(),
       };
       setMessages((prev) => [...prev, sysMsg]);
     } catch {
       const errMsg: Message = {
-        id: crypto.randomUUID(),
+        id: nextId(),
         role: "system",
         content:
           "Connection to 0verforge backend unavailable. Ensure the FastAPI server is running at " +
           BACKEND_URL,
-        timestamp: new Date(),
+        timestamp: Date.now(),
       };
       setMessages((prev) => [...prev, errMsg]);
     } finally {
@@ -102,10 +121,10 @@ export function ChatPanel() {
   const clearChat = () => {
     setMessages([
       {
-        id: "welcome",
+        id: "welcome-cleared",
         role: "system",
         content: "Chat cleared. 0verforge awaiting instructions.",
-        timestamp: new Date(),
+        timestamp: Date.now(),
       },
     ]);
   };
@@ -152,9 +171,11 @@ export function ChatPanel() {
             >
               {msg.content}
             </div>
-            <span className="text-[10px] text-muted-foreground font-mono px-1">
-              {msg.timestamp.toLocaleTimeString()}
-            </span>
+            {mounted && msg.timestamp > 0 && (
+              <span className="text-[10px] text-muted-foreground font-mono px-1">
+                {formatTime(msg.timestamp)}
+              </span>
+            )}
           </div>
         ))}
         {isLoading && (
