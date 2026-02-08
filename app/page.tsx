@@ -11,6 +11,7 @@ import { CovenantPanel } from "@/components/covenant-panel";
 import { RSICycleLog } from "@/components/rsi-cycle-log";
 import { AgentsPanel } from "@/components/agents-panel";
 import { ArchitectureDiagram } from "@/components/architecture-diagram";
+import { ChatPanel } from "@/components/chat-panel";
 
 export default function DashboardPage() {
   return (
@@ -33,9 +34,9 @@ export default function DashboardPage() {
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 rounded-md border border-border bg-secondary px-3 py-1.5">
-              <span className="inline-block h-2 w-2 rounded-full bg-primary animate-pulse" />
+              <span className="inline-block h-2 w-2 rounded-full bg-muted-foreground" />
               <span className="text-xs font-medium text-card-foreground font-mono">
-                RSI Active
+                Standby
               </span>
             </div>
           </div>
@@ -47,45 +48,47 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatusCard
             title="System Status"
-            value="Online"
-            description="All subsystems operational"
-            status="online"
+            value="Standby"
+            description="Awaiting backend connection"
+            status="idle"
             icon={<Activity className="h-4 w-4" />}
           />
           <StatusCard
             title="RSI Cycles"
-            value="1,247"
-            description="6 in last hour"
-            status="online"
+            value="0"
+            description="No cycles recorded"
+            status="idle"
             icon={<RotateCcw className="h-4 w-4" />}
           />
           <StatusCard
             title="Active Agents"
-            value="3 / 4"
-            description="1 idle (archiver-01)"
-            status="warning"
+            value="0 / 0"
+            description="No agents registered"
+            status="idle"
             icon={<Bot className="h-4 w-4" />}
           />
           <StatusCard
             title="Git Commits"
-            value="89"
-            description="12 merged from RSI"
-            status="online"
+            value="0"
+            description="No RSI commits"
+            status="idle"
             icon={<GitBranch className="h-4 w-4" />}
           />
         </div>
 
-        {/* Main Grid */}
+        {/* Chat + Covenant Row */}
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Left column - Cycle Log */}
           <div className="lg:col-span-2">
-            <RSICycleLog />
+            <ChatPanel />
           </div>
-
-          {/* Right column - Covenant */}
           <div>
             <CovenantPanel />
           </div>
+        </div>
+
+        {/* Cycle Log */}
+        <div className="mt-6">
+          <RSICycleLog />
         </div>
 
         {/* Bottom Grid */}
@@ -98,7 +101,7 @@ export default function DashboardPage() {
         <footer className="mt-8 border-t border-border pt-4 pb-6">
           <div className="flex flex-col items-center justify-between gap-2 sm:flex-row">
             <p className="text-xs text-muted-foreground font-mono">
-              0verforge v0.1.0 &middot; Core Covenant Active
+              0verforge v0.1.0 &middot; Core Covenant Loaded
             </p>
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Shield className="h-3 w-3 text-primary" />

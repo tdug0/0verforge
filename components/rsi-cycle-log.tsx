@@ -2,58 +2,13 @@
 
 import { RotateCcw, GitMerge, Ban, Undo2 } from "lucide-react";
 
-interface CycleEntry {
+export interface CycleEntry {
   id: number;
   timestamp: string;
   status: "merged" | "vetoed" | "rolled_back" | "invalid";
   proposal: string;
   detail: string;
 }
-
-const entries: CycleEntry[] = [
-  {
-    id: 1,
-    timestamp: "2026-02-09 14:32:01",
-    status: "merged",
-    proposal: "Optimize reflect() query batching",
-    detail: "Performance +12% on commit analysis",
-  },
-  {
-    id: 2,
-    timestamp: "2026-02-09 14:27:44",
-    status: "vetoed",
-    proposal: "Add external HTTP call in analyze()",
-    detail: "Blocked by no_exfil covenant clause",
-  },
-  {
-    id: 3,
-    timestamp: "2026-02-09 14:23:18",
-    status: "merged",
-    proposal: "Cache recent_commits result",
-    detail: "Reduced git subprocess calls by 40%",
-  },
-  {
-    id: 4,
-    timestamp: "2026-02-09 14:18:55",
-    status: "rolled_back",
-    proposal: "Refactor CovenantEnforcer loop",
-    detail: "Post-evaluation regression detected",
-  },
-  {
-    id: 5,
-    timestamp: "2026-02-09 14:14:30",
-    status: "merged",
-    proposal: "Add type hints to SubAgent",
-    detail: "Code quality score +5",
-  },
-  {
-    id: 6,
-    timestamp: "2026-02-09 14:10:02",
-    status: "invalid",
-    proposal: "Modify core covenant clauses",
-    detail: "Validation failed: immutable config",
-  },
-];
 
 const statusConfig = {
   merged: {
@@ -78,7 +33,11 @@ const statusConfig = {
   },
 };
 
-export function RSICycleLog() {
+interface RSICycleLogProps {
+  entries?: CycleEntry[];
+}
+
+export function RSICycleLog({ entries = [] }: RSICycleLogProps) {
   return (
     <div className="rounded-lg border border-border bg-card">
       <div className="flex items-center gap-2 border-b border-border px-5 py-4">
@@ -91,37 +50,47 @@ export function RSICycleLog() {
         </span>
       </div>
       <div className="divide-y divide-border max-h-[420px] overflow-y-auto">
-        {entries.map((entry) => {
-          const cfg = statusConfig[entry.status];
-          return (
-            <div key={entry.id} className="flex items-start gap-3 px-5 py-3.5">
-              <div
-                className={`mt-0.5 flex items-center justify-center rounded p-1 ${cfg.classes}`}
-              >
-                {cfg.icon}
-              </div>
-              <div className="flex flex-col gap-1 min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm text-card-foreground font-medium truncate">
-                    {entry.proposal}
-                  </span>
-                  <span
-                    className={`shrink-0 inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${cfg.classes}`}
-                  >
-                    {cfg.label}
-                  </span>
+        {entries.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 px-5">
+            <RotateCcw className="h-8 w-8 text-muted-foreground/30 mb-3" />
+            <p className="text-sm text-muted-foreground">No cycles recorded yet</p>
+            <p className="text-xs text-muted-foreground/60 mt-1">
+              Cycles will appear here when the RSI engine is running
+            </p>
+          </div>
+        ) : (
+          entries.map((entry) => {
+            const cfg = statusConfig[entry.status];
+            return (
+              <div key={entry.id} className="flex items-start gap-3 px-5 py-3.5">
+                <div
+                  className={`mt-0.5 flex items-center justify-center rounded p-1 ${cfg.classes}`}
+                >
+                  {cfg.icon}
                 </div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span className="font-mono">{entry.timestamp}</span>
-                  <span className="hidden sm:inline">-</span>
-                  <span className="hidden sm:inline truncate">
-                    {entry.detail}
-                  </span>
+                <div className="flex flex-col gap-1 min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm text-card-foreground font-medium truncate">
+                      {entry.proposal}
+                    </span>
+                    <span
+                      className={`shrink-0 inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${cfg.classes}`}
+                    >
+                      {cfg.label}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span className="font-mono">{entry.timestamp}</span>
+                    <span className="hidden sm:inline">-</span>
+                    <span className="hidden sm:inline truncate">
+                      {entry.detail}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
     </div>
   );

@@ -1,44 +1,16 @@
 "use client";
 
-import { Shield, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Shield, AlertTriangle, CheckCircle2, MinusCircle } from "lucide-react";
 
-interface CovenantClause {
+export interface CovenantClause {
   id: string;
   description: string;
   severity: "critical" | "warning" | "info";
   status: "passing" | "failing" | "unchecked";
 }
 
-const clauses: CovenantClause[] = [
-  {
-    id: "no_exfil",
-    description: "No proposal may exfiltrate private secrets or keys.",
-    severity: "critical",
-    status: "passing",
-  },
-  {
-    id: "transparency",
-    description: "All self-modifications must be logged and reversible.",
-    severity: "warning",
-    status: "passing",
-  },
-  {
-    id: "scope_limit",
-    description: "Modifications confined to designated sandbox.",
-    severity: "critical",
-    status: "passing",
-  },
-  {
-    id: "human_override",
-    description: "Human operators can halt any cycle at any time.",
-    severity: "critical",
-    status: "passing",
-  },
-];
-
 const severityBadge = {
-  critical:
-    "bg-destructive/10 text-destructive border-destructive/20",
+  critical: "bg-destructive/10 text-destructive border-destructive/20",
   warning: "bg-amber-500/10 text-amber-500 border-amber-500/20",
   info: "bg-primary/10 text-primary border-primary/20",
 };
@@ -46,10 +18,43 @@ const severityBadge = {
 const statusIcon = {
   passing: <CheckCircle2 className="h-4 w-4 text-primary" />,
   failing: <AlertTriangle className="h-4 w-4 text-destructive" />,
-  unchecked: <AlertTriangle className="h-4 w-4 text-muted-foreground" />,
+  unchecked: <MinusCircle className="h-4 w-4 text-muted-foreground" />,
 };
 
-export function CovenantPanel() {
+interface CovenantPanelProps {
+  clauses?: CovenantClause[];
+}
+
+const defaultClauses: CovenantClause[] = [
+  {
+    id: "no_exfil",
+    description: "No proposal may exfiltrate private secrets or keys.",
+    severity: "critical",
+    status: "unchecked",
+  },
+  {
+    id: "transparency",
+    description: "All self-modifications must be logged and reversible.",
+    severity: "warning",
+    status: "unchecked",
+  },
+  {
+    id: "scope_limit",
+    description: "Modifications confined to designated sandbox.",
+    severity: "critical",
+    status: "unchecked",
+  },
+  {
+    id: "human_override",
+    description: "Human operators can halt any cycle at any time.",
+    severity: "critical",
+    status: "unchecked",
+  },
+];
+
+export function CovenantPanel({ clauses }: CovenantPanelProps) {
+  const displayClauses = clauses ?? defaultClauses;
+
   return (
     <div className="rounded-lg border border-border bg-card">
       <div className="flex items-center gap-2 border-b border-border px-5 py-4">
@@ -58,11 +63,11 @@ export function CovenantPanel() {
           Covenant Enforcer
         </h2>
         <span className="ml-auto text-xs text-muted-foreground font-mono">
-          v0.1.0
+          {clauses ? "live" : "awaiting"}
         </span>
       </div>
       <div className="divide-y divide-border">
-        {clauses.map((clause) => (
+        {displayClauses.map((clause) => (
           <div
             key={clause.id}
             className="flex items-start gap-3 px-5 py-3.5"
